@@ -1,5 +1,5 @@
+"use client";
 import { Button } from "@/components/ui/button";
-import { RepeatIcon, ShoppingCartIcon, TagIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -64,7 +64,10 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <WalletMultiButton/>
+          <WalletMultiButton style={{
+            height: "35px",
+            backgroundColor: "#0EA5E9",
+          }}/>
         </div>
       </div>
     </header>

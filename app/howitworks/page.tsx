@@ -1,6 +1,5 @@
 "use client";
 import { Navbar } from "@/components/ui/navbar";
-import { Footer } from "@/components/ui/footer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Card, CardContent } from "@//components/ui/card";
@@ -35,7 +34,7 @@ const HowItWorks = () => {
       description:
         "When ready to fly, travelers redeem their seat token for a standard airline PNR and e-ticket with a few simple clicks.",
       image:
-        "https://images.unsplash.com/photo-1537427866374-a1d5b9e0e7c7?w=600&auto=format&fit=crop",
+        "https://img.freepik.com/free-photo/front-view-couple-holding-passport_23-2150801472.jpg?t=st=1745531665~exp=1745535265~hmac=51640d0b305cfb7eb211d08f8bdcbab012835083b31a3ccc8edd6cb510d62449&w=1380",
     },
   ];
 
@@ -66,8 +65,8 @@ const HowItWorks = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <section className="py-20 bg-gradient-sky">
-          <div className="container">
+        <section className="py-20 bg-[#F8FAFC]">
+          <div className="container bg-[#F8FAFC] mx-auto w-[90%]">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl font-bold tracking-tight mb-6">
                 How Our Platform Works
@@ -82,8 +81,8 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        <section className="py-20">
-          <div className="container">
+        <section className="py-20 bg-white">
+          <div className="container mx-auto w-[90%] ">
             <div className="grid grid-cols-1 gap-16">
               {steps.map((step, index) => (
                 <div
@@ -111,7 +110,7 @@ const HowItWorks = () => {
                     }
                   >
                     <div className="flex items-center mb-4">
-                      <div className="w-10 h-10 rounded-full bg-sky-light flex items-center justify-center text-sky-dark font-bold mr-4">
+                      <div className="w-10 h-10 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-[#0EA5E9] font-bold mr-4">
                         {index + 1}
                       </div>
                       <h2 className="text-2xl font-bold">{step.title}</h2>
@@ -127,7 +126,7 @@ const HowItWorks = () => {
         </section>
 
         <section className="py-20 bg-muted">
-          <div className="container">
+          <div className="container mx-auto w-[90%]">
             <h2 className="text-3xl font-bold text-center mb-12">Benefits</h2>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -139,7 +138,7 @@ const HowItWorks = () => {
                       {benefit.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="flex">
                           <svg
-                            className="h-6 w-6 text-sky-dark flex-shrink-0 mr-2"
+                            className="h-6 w-6 text-[#0EA5E9] flex-shrink-0 mr-2"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -162,8 +161,8 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        <section className="py-20 bg-white">
-          <div className="container">
+        <section className="py-20 bg-white ">
+          <div className="container w-[90%] mx-auto">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-6">
                 Frequently Asked Questions
@@ -221,7 +220,7 @@ const HowItWorks = () => {
         </section>
 
         <section className="py-20 bg-gradient-sky">
-          <div className="container">
+          <div className="container mx-auto w-[90%]">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
               <p className="text-lg text-neutral-dark mb-8">
@@ -232,7 +231,7 @@ const HowItWorks = () => {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-sky-dark hover:bg-sky text-white"
+                  className="bg-[#0EA5E9] hover:bg-sky text-white"
                 >
                   <Link href="/marketplace">Browse Marketplace</Link>
                 </Button>
@@ -240,7 +239,7 @@ const HowItWorks = () => {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-sky-dark text-sky-dark hover:bg-sky-light"
+                  className="border-[#0EA5E9] text-sky-dark hover:bg-sky-light"
                 >
                   <Link href="/admin">Airline Portal</Link>
                 </Button>
@@ -249,7 +248,6 @@ const HowItWorks = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
