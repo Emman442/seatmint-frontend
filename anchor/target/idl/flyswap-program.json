@@ -1,0 +1,396 @@
+{
+  "address": "EkwZGxeTUfUhHhVATjXt48yus7RQM7qPayBAyGVHJk9d",
+  "metadata": {
+    "name": "flyswap_program",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "buy_seat",
+      "discriminator": [
+        225,
+        111,
+        238,
+        154,
+        123,
+        74,
+        43,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buyer_token_account",
+          "writable": true
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "asset",
+          "docs": [
+            "CHECK - check assets"
+          ],
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "mpl_core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "mint_seat",
+      "discriminator": [
+        174,
+        36,
+        106,
+        250,
+        202,
+        238,
+        71,
+        231
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "seat",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  97,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "update_authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "asset",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mpl_core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "seat_number",
+          "type": "u8"
+        },
+        {
+          "name": "reservation_time",
+          "type": "i64"
+        },
+        {
+          "name": "departure_time",
+          "type": "i64"
+        },
+        {
+          "name": "arrival_time",
+          "type": "i64"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "redeem_seat",
+      "discriminator": [
+        197,
+        134,
+        54,
+        53,
+        245,
+        164,
+        113,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "redeemer",
+          "signer": true
+        },
+        {
+          "name": "seat",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BaseCollectionV1",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Seat",
+      "discriminator": [
+        90,
+        228,
+        22,
+        90,
+        162,
+        86,
+        173,
+        26
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidSeed",
+      "msg": "The provided seed is invalid."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidBump",
+      "msg": "The provided bump is invalid."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidMint",
+      "msg": "The provided mint is invalid."
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTokenAccount",
+      "msg": "The provided token account is invalid."
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAuthority",
+      "msg": "The provided authority is invalid."
+    },
+    {
+      "code": 6005,
+      "name": "InvalidAmount",
+      "msg": "The provided amount is invalid."
+    },
+    {
+      "code": 6006,
+      "name": "SeatAlreadyBooked",
+      "msg": "This seat is already booked."
+    },
+    {
+      "code": 6007,
+      "name": "AlreadyCheckedIn",
+      "msg": "The seat is already checked in."
+    },
+    {
+      "code": 6008,
+      "name": "CheckInWindowClosed",
+      "msg": "The check-in window is closed."
+    },
+    {
+      "code": 6009,
+      "name": "InvalidCollection",
+      "msg": "The provided collection is invalid."
+    },
+    {
+      "code": 6010,
+      "name": "UnauthorizedRedemption",
+      "msg": "This Authority is not the owner of the seat."
+    }
+  ],
+  "types": [
+    {
+      "name": "BaseCollectionV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": {
+                "name": "Key"
+              }
+            }
+          },
+          {
+            "name": "update_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "num_minted",
+            "type": "u32"
+          },
+          {
+            "name": "current_size",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Key",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "AssetV1"
+          },
+          {
+            "name": "HashedAssetV1"
+          },
+          {
+            "name": "PluginHeaderV1"
+          },
+          {
+            "name": "PluginRegistryV1"
+          },
+          {
+            "name": "CollectionV1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Seat",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "seat_number",
+            "type": "u8"
+          },
+          {
+            "name": "is_occupied",
+            "type": "bool"
+          },
+          {
+            "name": "reservation_time",
+            "type": "i64"
+          },
+          {
+            "name": "departure_time",
+            "type": "i64"
+          },
+          {
+            "name": "arrival_time",
+            "type": "i64"
+          },
+          {
+            "name": "is_used",
+            "type": "bool"
+          },
+          {
+            "name": "checked_in",
+            "type": "bool"
+          },
+          {
+            "name": "checked_in_time",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,27 +1,56 @@
 "use client";
-import { useState } from "react";
+import * as anchor from "@coral-xyz/anchor";
+import { useMemo, useState } from "react";
 import { Navbar } from "@/components/ui/navbar";
-import { Footer } from "@/components/ui/footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
+import {
+  useCreateUser,
+  createAirlineSeatToken,
+} from "@/features/airline/useAirline";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { Cluster, Connection, PublicKey, Keypair } from "@solana/web3.js";
+import { Program, AnchorProvider, web3 } from "@coral-xyz/anchor";
+import { getFlyswapProgramId, getFlySwapProgram } from "@/anchor/src";
+import { useCluster } from "@/anchor/cluster/cluster-data-access";
+import { createCollection, MPL_CORE_PROGRAM_ID } from "@metaplex-foundation/mpl-core";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { fromWeb3JsKeypair } from "@metaplex-foundation/umi-web3js-adapters";
+import { useAnchorProvider } from "@/anchor/utils/solana-provider";
+import { generateSigner, keypairIdentity } from "@metaplex-foundation/umi";
+import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters'
+
 
 const Admin = () => {
-  const [isAirlineLoggedIn, setIsAirlineLoggedIn] = useState(false);
+  const { publicKey } = useWallet();
+  const wallet = useWallet()
 
+  const { connection } = useConnection();
+  const { cluster } = useCluster();
+  const provider = useAnchorProvider();
+  const programId = useMemo(
+    () => getFlyswapProgramId(cluster.network as Cluster),
+    [cluster]
+  );
+  const program = useMemo(
+    () => getFlySwapProgram(provider, programId),
+    [provider, programId]
+  );
+
+
+  const [isAirlineLoggedIn, setIsAirlineLoggedIn] = useState(false);
+  const {
+    createAirlineSeatToken: createAndMintAirlineSeatToken,
+    isCreatingAirlineSeatToken,
+  } = createAirlineSeatToken();
+  const { loginAirlineDetails, isLoggingIn } = useCreateUser();
   const [loginForm, setLoginForm] = useState({
-    airlineCode: "",
-    password: "",
+    airline_code: "",
+    airline_password: "",
   });
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,10 +60,21 @@ const Admin = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple mock login - in a real app you would authenticate with a backend
-    if (loginForm.airlineCode && loginForm.password) {
-      setIsAirlineLoggedIn(true);
-      toast.success("Welcome to the Airline Admin Portal.");
+    console.log("Login Form Data:", loginForm);
+    if (!loginForm.airline_code || !loginForm.airline_password) return;
+
+    if (loginForm.airline_code && loginForm.airline_password) {
+      loginAirlineDetails(loginForm, {
+        onSuccess(data) {
+          console.log("Login successful:", data);
+          setIsAirlineLoggedIn(true);
+          toast.success("Welcome back!");
+        },
+        onError(err) {
+          console.log("Login failed:", err);
+          toast.error("Invalid credentials. Please try again.");
+        },
+      });
     }
   };
 
@@ -42,17 +82,19 @@ const Admin = () => {
     flightNumber: "",
     origin: "",
     destination: "",
-    departureDate: "",
-    departureTime: "",
-    arrivalTime: "",
+    departure_date: "",
+    departure_time: "",
+    arrival_time: "",
     aircraft: "",
-    economySeats: "100",
-    businessSeats: "20",
-    firstClassSeats: "10",
-    economyPrice: "199",
-    businessPrice: "399",
-    firstClassPrice: "899",
-    royaltyPercent: "5",
+    percentage_royalty: "",
+    aircraft_type: "",
+    economy_seats: "",
+    first_class_seats: "",
+    economy_price: "",
+    business_price: "",
+    business_seats: "",
+    first_class_price: "",
+    seat: "",
   });
 
   const handleMintChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,18 +102,61 @@ const Admin = () => {
     setMintForm((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleMintSubmit = (e: React.FormEvent) => {
+  const handleMintSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would submit this data to mint the seat tokens
-    toast.success("token minted");
-    // toast({
-    //   title: "Tokenization Initiated",
-    //   description: `${
-    //     parseInt(mintForm.economySeats) +
-    //     parseInt(mintForm.businessSeats) +
-    //     parseInt(mintForm.firstClassSeats)
-    //   } seats are being tokenized for flight ${mintForm.flightNumber}.`,
-    // });
+    // if(!publicKey) return;
+    // const [seat] = PublicKey.findProgramAddressSync(
+    //   [Buffer.from("seat"), publicKey.toBuffer()],
+    //   program.programId
+    // );
+
+
+    // const umi = createUmi("https://api.devnet.solana.com").use(
+    //   keypairIdentity(fromWeb3JsKeypair(wallet.payer)), //Keypair Identity
+    // const umi = createUmi("https://api.devnet.solana.com").use(walletAdapterIdentity(wallet))//Wallet Adapter Identity
+
+    // const collectionSigner = generateSigner(umi);
+    // await createCollection(umi, {
+    //   collection: collectionSigner,
+    //   name: "Newest Collection",
+    //   uri: "https://github.com/Emman442/Quiz-application-with-leaderboard-feature/blob/main/mpl.json",
+    // }).sendAndConfirm(umi);
+
+    //  const asset = web3.Keypair.generate(); // generate asset keypair
+
+    //  const tx = await program.methods.mintSeat(
+    //      1,
+    //      new anchor.BN(1745791232),
+    //      new anchor.BN(1745791239),
+    //      new anchor.BN(1745791264),
+    //      "Arik Air",
+    //      "https://github.com/Emman442/Quiz-application-with-leaderboard-feature/blob/main/mpl.json"
+    //    )
+    //    .accounts({
+    //      signer: publicKey,
+    //      payer: publicKey,
+    //      seat: seat,
+    //      collection: collectionSigner.publicKey, // You may pass this from backend if static
+    //      mplCoreProgram: MPL_CORE_PROGRAM_ID,
+    //      updateAuthority: publicKey,
+    //      asset: asset.publicKey,
+    //      systemProgram: web3.SystemProgram.programId,
+    //    })
+    //    .signers([asset])
+    //    .rpc();
+
+    //  console.log("Transaction Signature:", tx);
+    // toast.success(`Transaction confirmed!, ${tx}`);
+
+     // ✅ After transaction confirmed → call backend
+    createAndMintAirlineSeatToken(mintForm, {
+      onSuccess() {
+        toast.success("Seat Token Minted Successfully");
+      },
+      onError(err) {
+        toast.error(err.message);
+      },
+    });
   };
 
   if (!isAirlineLoggedIn) {
@@ -89,9 +174,9 @@ const Admin = () => {
                 <div className="space-y-2">
                   <Label htmlFor="airlineCode">Airline Code</Label>
                   <Input
-                    id="airlineCode"
+                    id="airline_code"
                     placeholder="e.g. AA, DL, UA"
-                    value={loginForm.airlineCode}
+                    value={loginForm.airline_code}
                     onChange={handleLoginChange}
                     required
                   />
@@ -100,9 +185,9 @@ const Admin = () => {
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
-                    id="password"
+                    id="airline_password"
                     type="password"
-                    value={loginForm.password}
+                    value={loginForm.airline_password}
                     onChange={handleLoginChange}
                     required
                   />
@@ -110,9 +195,10 @@ const Admin = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-[#0EA5E9] hover:bg-sky"
+                  disabled={isLoggingIn}
+                  className="w-full text-white bg-[#0EA5E9] hover:bg-sky"
                 >
-                  Log In
+                  {isLoggingIn ? "Logging In..." : "Log In"}
                 </Button>
 
                 <p className="text-center text-sm text-neutral">
@@ -135,7 +221,7 @@ const Admin = () => {
             <div>
               <h1 className="text-3xl font-bold mb-2">Airline Admin Portal</h1>
               <p className="text-neutral">
-                Welcome, {loginForm.airlineCode} Airlines
+                Welcome, {loginForm.airline_code} Airlines
               </p>
             </div>
             <Button
@@ -195,45 +281,55 @@ const Admin = () => {
                           required
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="seat">Seat</Label>
+                        <Input
+                          id="seat"
+                          placeholder="e.g. 7A"
+                          value={mintForm.seat}
+                          onChange={handleMintChange}
+                          required
+                        />
+                      </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="departureDate">Departure Date</Label>
+                        <Label htmlFor="departure_date">Departure Date</Label>
                         <Input
-                          id="departureDate"
+                          id="departure_date"
                           type="date"
-                          value={mintForm.departureDate}
+                          value={mintForm.departure_date}
                           onChange={handleMintChange}
                           required
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="departureTime">Departure Time</Label>
+                        <Label htmlFor="departure_time">Departure Time</Label>
                         <Input
-                          id="departureTime"
+                          id="departure_time"
                           type="time"
-                          value={mintForm.departureTime}
+                          value={mintForm.departure_time}
                           onChange={handleMintChange}
                           required
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="arrivalTime">Arrival Time</Label>
+                        <Label htmlFor="arrival_time">Arrival Time</Label>
                         <Input
-                          id="arrivalTime"
+                          id="arrival_time"
                           type="time"
-                          value={mintForm.arrivalTime}
+                          value={mintForm.arrival_time}
                           onChange={handleMintChange}
                           required
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="aircraft">Aircraft Type</Label>
+                        <Label htmlFor="aircraft_type">Aircraft Type</Label>
                         <select
                           name=""
-                          id=""
+                          id="aircraft_type"
                           className="text-sm border-[#252525]/20 border-1 focus:outline-none w-full rounded-md h-9 bg-[#F8FAFC] px-1"
                         >
                           <option value="b787">Boeing 787</option>
@@ -249,22 +345,22 @@ const Admin = () => {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="economySeats">Economy Seats</Label>
+                            <Label htmlFor="economy_seats">Economy Seats</Label>
                             <Input
-                              id="economySeats"
+                              id="economy_seats"
                               type="number"
-                              value={mintForm.economySeats}
+                              // value={mintForm.economySeats}
                               onChange={handleMintChange}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="economyPrice">
+                            <Label htmlFor="economy_price">
                               Economy Price ($)
                             </Label>
                             <Input
-                              id="economyPrice"
+                              id="economy_price"
                               type="number"
-                              value={mintForm.economyPrice}
+                              // value={mintForm.economyPrice}
                               onChange={handleMintChange}
                             />
                           </div>
@@ -278,18 +374,18 @@ const Admin = () => {
                             <Input
                               id="businessSeats"
                               type="number"
-                              value={mintForm.businessSeats}
+                              // value={mintForm.businessSeats}
                               onChange={handleMintChange}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="businessPrice">
+                            <Label htmlFor="business_price">
                               Business Price ($)
                             </Label>
                             <Input
-                              id="businessPrice"
+                              id="business_price"
                               type="number"
-                              value={mintForm.businessPrice}
+                              // value={mintForm.businessPrice}
                               onChange={handleMintChange}
                             />
                           </div>
@@ -297,24 +393,24 @@ const Admin = () => {
 
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="firstClassSeats">
+                            <Label htmlFor="first_class_seats">
                               First Class Seats
                             </Label>
                             <Input
-                              id="firstClassSeats"
+                              id="first_class_seats"
                               type="number"
-                              value={mintForm.firstClassSeats}
+                              // value={mintForm.firstClassSeats}
                               onChange={handleMintChange}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="firstClassPrice">
+                            <Label htmlFor="first_class_proce">
                               First Class Price ($)
                             </Label>
                             <Input
-                              id="firstClassPrice"
+                              id="first_class_price"
                               type="number"
-                              value={mintForm.firstClassPrice}
+                              // value={mintForm.firstClassPrice}
                               onChange={handleMintChange}
                             />
                           </div>
@@ -326,15 +422,15 @@ const Admin = () => {
                       <h3 className="font-medium mb-4">Token Settings</h3>
                       <div className="max-w-md">
                         <div className="space-y-2">
-                          <Label htmlFor="royaltyPercent">
+                          <Label htmlFor="percentage_royalty">
                             Royalty Percentage (%)
                           </Label>
                           <Input
-                            id="royaltyPercent"
+                            id="percentage_royalty"
                             type="number"
                             min="0"
                             max="20"
-                            value={mintForm.royaltyPercent}
+                            // value={mintForm.royaltyPercent}
                             onChange={handleMintChange}
                           />
                           <p className="text-xs text-neutral mt-1">
@@ -346,8 +442,8 @@ const Admin = () => {
                     </div>
 
                     <div className="border-t pt-6 flex justify-end">
-                      <Button type="submit" className="bg-[#0EA5E9] text-white">
-                        Mint Seat Tokens
+                      <Button type="submit" className="bg-[#0EA5E9] text-white" disabled={isCreatingAirlineSeatToken}>
+                       {isCreatingAirlineSeatToken ?"Minting seat tokens...": "Mint Seat Tokens"}
                       </Button>
                     </div>
                   </form>
@@ -557,7 +653,9 @@ const Admin = () => {
                     </div>
 
                     <div className="flex justify-end">
-                      <Button className="bg-[#0EA5E9] text-white">Save Settings</Button>
+                      <Button className="bg-[#0EA5E9] text-white">
+                        Save Settings
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

@@ -4,6 +4,9 @@ import "./globals.css";
 import React, { useMemo} from "react";
 import AppWalletProvider from "@/components/AppWalletProvider";
 import { Footer } from "@/components/ui/footer";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import Providers from "@/provider";
+import { ClusterProvider } from "@/anchor/cluster/cluster-data-access";
 
 
 const geistSans = Geist({
@@ -27,16 +30,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
  
+ 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppWalletProvider>
-          {children}
-
-          <Footer />
-        </AppWalletProvider>
+        <ClusterProvider>
+          <AppWalletProvider>
+            <Providers>{children}</Providers>
+            <Sonner />
+            <Footer />
+          </AppWalletProvider>
+        </ClusterProvider>
       </body>
     </html>
   );

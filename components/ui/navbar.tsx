@@ -6,7 +6,12 @@ import Link from "next/link";
 import { FaPlaneDeparture } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineRedeem, MdRedeem } from "react-icons/md";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import dynamic from "next/dynamic";
+
+const WalletMultiButton = dynamic(
+  () => import("@solana/wallet-adapter-react-ui").then((mod)=> mod.WalletMultiButton),
+  { ssr: false }
+);
 
 export function Navbar() {
   const router = useRouter();
